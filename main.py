@@ -56,6 +56,12 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/posts/")
 def create_post(post: PostCreate, db: Session = Depends(get_db)):
+    # Sprawdzam czy user_id istnieje
+    db_user = db.query(User).filter(User.id == post.user_id).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Tworzę posta po walidacji
     db_post = Post(**post.model_dump())
     db.add(db_post)
     db.commit()
